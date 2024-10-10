@@ -7,18 +7,21 @@ from dash_extensions.javascript import arrow_function
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
 app = Dash(__name__, external_stylesheets=external_stylesheets)
-
 server = app.server
+
+#################################################### Layouts ########################################################
 
 # Overview of the country
 app.layout = html.Div([
+    html.P('European Green Deal Tracker Alpha'),
+    
+    # Navigation bar with levels or pages    
     html.Nav([
         html.P('Tracker'),
         html.P('Overview'),
-    
     ]),
+    
     # Dropdown for country
     html.P('Country'),
     dcc.Dropdown(['EU', 'Sweden', 'Estonia'],
@@ -29,19 +32,24 @@ app.layout = html.Div([
     
     # Dropdown for sector
     html.P('Sector'),
-    dcc.Dropdown(['Climate', 'Energy'],
-        'Climate',
+    dcc.Dropdown(['All', 'Climate', 'Energy', 'Transport', 'Industry', 'Environment and Oceans'],
+        'All',
         id='dropdown-overview-sector'
     ),
     html.Div(id='display-overview-sector'),
     
     # Map for implemented counties
+    html.P('This is the map for implemented countries, might be moved to another page'),
     dl.Map(children= [
         dl.TileLayer(), 
-        dl.GeoJSON(url="https://raw.githubusercontent.com/leakyMirror/map-of-europe/refs/heads/master/GeoJSON/europe.geojson", zoomToBounds=True, id="map-eu-geojson",
-               hideout=dict(selected=[]))
-        ], style={'height': '50vh'}, center=[56, 10], zoom=6, id='map-overview-country'),
+        dl.GeoJSON(url="https://github.com/ansel-yu/SEI-green-deal-tracker/blob/main/data/eu_2020_3035.geojson", zoomToBounds=True, id="map-eu-geojson", hideout=dict(selected=[])),
+        ], style={'height': '50vh'}, zoom=4, id='map-overview-country', center=[56.046467, 14.156450]),
 ])
+
+
+
+
+####################################################### Callback functions #####################################################
 
 # Dropdown for country
 @callback(Output('display-overview-country', 'children'), Input('dropdown-overview-country', 'value'))
@@ -54,9 +62,9 @@ def display_dropdown_value(value):
     return f'You have selected {value}, NB: use as a variable later'
 
 # Map for implemented counties
-@app.callback(Output("map-overview-country", "formatOptions"), [Input("map-eu-geojson", "clickData")], prevent_initial_call=True)
-def load_country_on_map(click_data):
-    print(click_data['properties']['NAME'])
+# @app.callback(Output("map-overview-country", "formatOptions"), [Input("map-eu-geojson", "clickData")], prevent_initial_call=True)
+# def load_country_on_map(click_data):
+#     print(click_data['properties']['NAME'])
     # return click_data
 
 
