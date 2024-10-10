@@ -42,7 +42,10 @@ app.layout = html.Div([
     html.P('This is the map for implemented countries, might be moved to another page'),
     dl.Map(children= [
         dl.TileLayer(), 
-        dl.GeoJSON(url="https://github.com/ansel-yu/SEI-green-deal-tracker/blob/main/data/eu_2020_3035.geojson", zoomToBounds=True, id="map-eu-geojson", hideout=dict(selected=[])),
+        dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/refs/heads/main/data/eu_2020.geojson?token=GHSAT0AAAAAACXVJWIWDWFULXKPGS5HEG7IZYHYPMA", 
+                   zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray=''))),
+        dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/refs/heads/main/data/ee_se_2020.geojson?token=GHSAT0AAAAAACXVJWIWDWFULXKPGS5HEG7IZYHYPMA", 
+                   zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray=''))),
         ], style={'height': '50vh'}, zoom=4, id='map-overview-country', center=[56.046467, 14.156450]),
 ])
 
@@ -62,9 +65,9 @@ def display_dropdown_value(value):
     return f'You have selected {value}, NB: use as a variable later'
 
 # Map for implemented counties
-# @app.callback(Output("map-overview-country", "formatOptions"), [Input("map-eu-geojson", "clickData")], prevent_initial_call=True)
-# def load_country_on_map(click_data):
-#     print(click_data['properties']['NAME'])
+@app.callback(Output("map-overview-country", "formatOptions"), [Input("map-eu-geojson", "clickData")], prevent_initial_call=True)
+def load_country_on_map(click_data):
+    print(click_data['properties']['NAME_ENGL'])
     # return click_data
 
 
