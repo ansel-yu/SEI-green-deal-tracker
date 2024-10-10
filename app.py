@@ -10,6 +10,8 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 
+# https://green-deal-tracker-1b2ec05570ff.herokuapp.com/
+
 #################################################### Layouts ########################################################
 
 # Overview of the country
