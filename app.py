@@ -42,10 +42,10 @@ app.layout = html.Div([
     html.P('This is the map for implemented countries, might be moved to another page'),
     dl.Map(children= [
         dl.TileLayer(), 
-        dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/refs/heads/main/data/eu_2020.geojson?token=GHSAT0AAAAAACXVJWIWDWFULXKPGS5HEG7IZYHYPMA", 
-                   zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray=''))),
-        dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/refs/heads/main/data/ee_se_2020.geojson?token=GHSAT0AAAAAACXVJWIWDWFULXKPGS5HEG7IZYHYPMA", 
-                   zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray=''))),
+        # dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/5c80f76182983f41fec8a3134b363f3dd06dc999/data/eu_2020.geojson?token=GHSAT0AAAAAACXVJWIWQCF7QORZ3XCF5UFCZYHY22Q", 
+        #            zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[])),
+        dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/5c80f76182983f41fec8a3134b363f3dd06dc999/data/ee_se_2020.geojson?token=GHSAT0AAAAAACXVJWIX3XT27TKLRERSXPWUZYHY3IA", 
+                   zoomToBounds=False, id="map-working-country-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')), zoomToBoundsOnClick=True),
         ], style={'height': '50vh'}, zoom=4, id='map-overview-country', center=[56.046467, 14.156450]),
 ])
 
@@ -65,7 +65,7 @@ def display_dropdown_value(value):
     return f'You have selected {value}, NB: use as a variable later'
 
 # Map for implemented counties
-@app.callback(Output("map-overview-country", "formatOptions"), [Input("map-eu-geojson", "clickData")], prevent_initial_call=True)
+@app.callback(Output("map-overview-country", "formatOptions"), [Input("map-working-country-geojson", "clickData")], prevent_initial_call=True)
 def load_country_on_map(click_data):
     print(click_data['properties']['NAME_ENGL'])
     # return click_data
