@@ -57,31 +57,29 @@ app.layout = html.Div([
     html.P('-------------- Map --------------'),
 
     html.P('This is the map for implemented countries, might be moved to another page'),
-    dl.Map(children= [
+    html.Div([
+    dl.Map(style={'height': '50vh'}, zoom=4, id='map-overview', center=[56.046467, 14.156450], children= [
         dl.TileLayer(), 
-        # dl.GeoJSON(url="https://raw.githubusercontent.com/ansel-yu/SEI-green-deal-tracker/5c80f76182983f41fec8a3134b363f3dd06dc999/data/eu_2020.geojson?token=GHSAT0AAAAAACXVJWIWQCF7QORZ3XCF5UFCZYHY22Q", 
-        #            zoomToBounds=False, id="map-eu-geojson", hideout=dict(selected=[])),
+        dl.GeoJSON(url="/data/eu_2020.geojson", 
+                   zoomToBounds=False, id="map-eu-geojson"),
         dl.GeoJSON(url="data/ee_se_2020.geojson", 
                    zoomToBounds=False, id="map-working-country-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')), zoomToBoundsOnClick=True),
-        ], style={'height': '50vh'}, zoom=4, id='map-overview-country', center=[56.046467, 14.156450]),
+        ], 
+           ),
+    ]),
 
 
-    html.P('-------------- Text --------------'),
+    html.P('-------------- Text of country specific policies --------------'),
 
     html.Div(id='display-overview-country'),
     
-    # dbc.Container([
-    # dbc.Label('-------------- Filter out content --------------'),
-    # dash_table.DataTable(data_policy.to_dict('records'),[{"name": i, "id": i} for i in data_policy[['name', 'full_name', 'country', 'sector']]], id='tbl'),
-    # dbc.Alert(id='tbl_out'),
-    # ]),
     
-
-    
-    
-    
+    html.P('-------------- Text of sector specific policies --------------'),
+  
     html.Div(id='display-overview-sector'),
 
+    html.P('-------------- Table for country and sector --------------'),
+    dash_table.DataTable(id='tbl-overview-sector-country'),
 
 ])
 
@@ -91,22 +89,27 @@ app.layout = html.Div([
 
 # Dropdown for country
 @callback(Output('display-overview-country', 'children'), Input('dropdown-overview-country', 'value'))
-def display_dropdown_value(value):
-    return data_policy.loc[data_policy['country'] == value]['name']
+def display_dropdown_value(country):
+    return data_policy.loc[data_policy['country'] == country]['name']
 
 # Dropdown for sector
 @callback(Output('display-overview-sector', 'children'), Input('dropdown-overview-sector', 'value'))
-def display_dropdown_value(value):
-    return str(data_policy[data_policy['sector'] == value][['name']])
+def display_dropdown_value(sector):
+    return data_policy[data_policy['sector'] == sector]['name']
 
 # Country + sector -> table
-@callback(Output('tbl_out', 'children'), Input('dropdown-overview-sector', 'value'), Input('dropdown-overview-country', 'value'))
+@callback([Output('tbl-overview-sector-country', component_property='data'), Output('tbl-overview-sector-country', component_property='columns')],
+          [Input('dropdown-overview-sector', 'value'), Input('dropdown-overview-country', 'value')])
 def change_table_dropdown_value(sector, country):
-    return print(sector, country)
+    df = data_policy[(data_policy['sector'] == sector) & (data_policy['country'] == country)][['full_name', 'hindering_factors', 'enabling_factors', 'application_date', 'implementation_status']]
+    columns = [{'name': col, 'id': col} for col in df.columns]
+    data = df.to_dict('records')
+    return data, columns
+    # return print(sector, country)
 
 
 # Map for implemented counties
-@app.callback(Output("map-overview-country", "formatOptions"), [Input("map-working-country-geojson", "clickData")], prevent_initial_call=True)
+@app.callback(Output("map-overview", "formatOptions"), [Input("map-working-country-geojson", "clickData")], prevent_initial_call=True)
 def load_country_on_map(click_data):
     print(click_data['properties']['NAME_ENGL'])
     # return click_data
