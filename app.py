@@ -27,7 +27,7 @@ app.layout = html.Div([
     # Navigation bar with levels or pages    
     html.P('-------------- Navi bar --------------'),
     html.Nav([
-        html.P('Tracker'),
+        html.P('Home'),
         html.P('Overview'),
     ]),
     
@@ -48,38 +48,41 @@ app.layout = html.Div([
         id='dropdown-overview-sector'
     ),
     
-    ############################# Table for country and sector #############################
-    html.P(id='tbl_out'),
-
-    
+    # Dropdown for policy
+    html.P('Policy measures'),
+    dcc.Dropdown(data_policy['full_name'].unique().tolist(),
+        None,
+        id='dropdown-overview-policy'
+    ),
     
     # Map for implemented counties
     html.P('-------------- Map --------------'),
-
-    html.P('This is the map for implemented countries, might be moved to another page'),
     html.Div([
-    dl.Map(style={'height': '50vh'}, zoom=4, id='map-overview', center=[56.046467, 14.156450], children= [
-        dl.TileLayer(), 
-        dl.GeoJSON(url="/data/eu_2020.geojson", 
-                   zoomToBounds=False, id="map-eu-geojson"),
-        dl.GeoJSON(url="data/ee_se_2020.geojson", 
-                   zoomToBounds=False, id="map-working-country-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')), zoomToBoundsOnClick=True),
-        ], 
-           ),
-    ]),
+        dl.Map(style={'height': '50vh'}, zoom=4, id='map-overview', center=[56.046467, 14.156450], children= [
+            dl.TileLayer(),
+            dl.GeoJSON(url="/data/eu_2020.json", 
+                    zoomToBounds=False, id="map-eu-geojson"),
+            dl.GeoJSON(url="/data/ee_se_2020.geojson", 
+                    zoomToBounds=False, id="map-working-country-geojson", hideout=dict(selected=[]), hoverStyle=arrow_function(dict(weight=5, color='#666', dashArray='')), zoomToBoundsOnClick=True),
+            ], 
+            ),
+    ], style={'width': '40%', 'height': '50vh'}),
 
 
     html.P('-------------- Text of country specific policies --------------'),
-
     html.Div(id='display-overview-country'),
     
     
     html.P('-------------- Text of sector specific policies --------------'),
-  
     html.Div(id='display-overview-sector'),
+
 
     html.P('-------------- Table for country and sector --------------'),
     dash_table.DataTable(id='tbl-overview-sector-country'),
+
+
+    html.P('-------------- Table for policy by country --------------'),
+    dash_table.DataTable(id='tbl-overview-policy'),
 
 ])
 
@@ -102,6 +105,15 @@ def display_dropdown_value(sector):
           [Input('dropdown-overview-sector', 'value'), Input('dropdown-overview-country', 'value')])
 def change_table_dropdown_value(sector, country):
     df = data_policy[(data_policy['sector'] == sector) & (data_policy['country'] == country)][['full_name', 'hindering_factors', 'enabling_factors', 'application_date', 'implementation_status']]
+    columns = [{'name': col, 'id': col} for col in df.columns]
+    data = df.to_dict('records')
+    return data, columns
+
+# Policy -> table
+@callback([Output('tbl-overview-policy', component_property='data'), Output('tbl-overview-policy', component_property='columns')],
+          [Input('dropdown-overview-policy', 'value')])
+def change_table_dropdown_value(policy):
+    df = data_policy[(data_policy['full_name'] == policy)][['country', 'hindering_factors', 'enabling_factors', 'implementation_status']]
     columns = [{'name': col, 'id': col} for col in df.columns]
     data = df.to_dict('records')
     return data, columns
