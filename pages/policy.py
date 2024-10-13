@@ -40,11 +40,11 @@ layout = html.Div([
     # ),
     
     # Dropdown for policy
-    # html.P('Policy measures'),
-    # dcc.Dropdown(data_policy['full_name'].unique().tolist(),
-    #     None,
-    #     id='dropdown-overview-policy'
-    # ),
+    html.P('Policy measures'),
+    dcc.Dropdown(data_policy['full_name'].unique().tolist(),
+        None,
+        id='dropdown-overview-policy'
+    ),
     
     # Map for implemented counties
     html.P('-------------- Map --------------'),
@@ -64,8 +64,6 @@ layout = html.Div([
     # html.Div(id='display-overview-country'),
     
     
-    # html.P('-------------- Text of sector specific policies --------------'),
-    # html.Div(id='display-overview-sector'),
 
 
     # html.P('-------------- Table for country and sector --------------'),
@@ -75,6 +73,8 @@ layout = html.Div([
     html.P('-------------- Table for policy by country --------------'),
     dash_table.DataTable(id='tbl-overview-policy'),
 
+    html.P('-------------- Text of clicked item --------------'),
+    html.Div(id='tbl_overview_out'),
 ])
 
 
@@ -101,13 +101,13 @@ layout = html.Div([
 #     return data, columns
 
 # Policy -> table
-# @callback([Output('tbl-overview-policy', component_property='data'), Output('tbl-overview-policy', component_property='columns')],
-#           [Input('dropdown-overview-policy', 'value')])
-# def change_table_dropdown_value(policy):
-#     df = data_policy[(data_policy['full_name'] == policy)][['country', 'hindering_factors', 'enabling_factors', 'implementation_status']]
-#     columns = [{'name': col, 'id': col} for col in df.columns]
-#     data = df.to_dict('records')
-#     return data, columns
+@callback([Output('tbl-overview-policy', component_property='data', allow_duplicate=True), Output('tbl-overview-policy', component_property='columns', allow_duplicate=True)],
+          [Input('dropdown-overview-policy', 'value')], prevent_initial_call='initial_duplicate')
+def change_table_dropdown_value(policy):
+    df = data_policy[(data_policy['full_name'] == policy)][['country', 'hindering_factors', 'enabling_factors', 'implementation_status']]
+    columns = [{'name': col, 'id': col} for col in df.columns]
+    data = df.to_dict('records')
+    return data, columns
 
 
 # Map for implemented counties
@@ -118,13 +118,16 @@ layout = html.Div([
 
 
 # Map to filter out the clicked counties -> table
-@callback([Output('tbl-overview-policy', component_property='data'), Output('tbl-overview-policy', component_property='columns')],
+@callback([Output('tbl-overview-policy', component_property='data', allow_duplicate=True), Output('tbl-overview-policy', component_property='columns', allow_duplicate=True)],
           [Input("map-working-country-geojson", "clickData")], prevent_initial_call=True)
 def load_country_on_map(click_data):
-    print(click_data['properties']['NAME_ENGL'])
+    # print(click_data['properties']['NAME_ENGL'])
     df = data_policy.loc[data_policy['country'] == str(click_data['properties']['NAME_ENGL'])][['full_name', 'hindering_factors', 'enabling_factors', 'application_date', 'implementation_status']]    
     columns = [{'name': col, 'id': col} for col in df.columns]
     data = df.to_dict('records')
     return data, columns
     
-
+# Table -> text
+@callback(Output('tbl_overview_out', 'children'), Input('tbl-overview-policy', 'active_cell'))
+def update_graphs(active_cell):
+    return str(active_cell) if active_cell else "Click the table"

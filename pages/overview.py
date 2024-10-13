@@ -90,7 +90,8 @@ layout = html.Div([
     html.P('-------------- Table for country and sector --------------'),
     dash_table.DataTable(id='tbl-overview-sector-country'),
 
-
+    html.P('-------------- Text of clicked item --------------'),
+    html.Div(id='tbl-overview-sector-country-out'),
 
 ])
 
@@ -127,6 +128,12 @@ def change_table_dropdown_value(sector, country):
     columns = [{'name': col, 'id': col} for col in df.columns]
     data = df.to_dict('records')
     return data, columns
+
+# Table -> text
+@callback(Output('tbl-overview-sector-country-out', 'children'), Input('tbl-overview-sector-country', 'active_cell'))
+def update_graphs(active_cell):
+    return str(active_cell) if active_cell else "Click the table"
+
 
 # Policy -> table
 # @callback([Output('tbl-overview-policy', component_property='data'), Output('tbl-overview-policy', component_property='columns')],

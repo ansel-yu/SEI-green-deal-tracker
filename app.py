@@ -13,7 +13,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = Dash(__name__, external_stylesheets=external_stylesheets, use_pages=True)
 server = app.server
 
-data_policy = pd.read_csv('data/Policy profiles.csv')
+# data_policy = pd.read_csv('data/Policy profiles.csv')
 
 # https://green-deal-tracker-1b2ec05570ff.herokuapp.com/
 
